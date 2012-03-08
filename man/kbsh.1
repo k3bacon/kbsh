@@ -1,0 +1,72 @@
+.\"
+.\" Kbsh man page.
+.\" Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
+.\"
+.\" This file is part of kbsh.
+.\"
+.\" Kbsh is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" Kbsh is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with kbsh.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.TH "KBSH" "1" "MARCH 2012" "K3BACON SHELL v0.1"
+
+.SH NAME
+
+\fBkbsh\fR - K3BACON Shell
+
+.SH SYNOPSIS
+
+\fBkbsh\fR [\fBLong options\fR] [\fBShell options\fR] [\fBFile\fR]
+
+.SH DESCRIPTION
+
+\fBKbsh\fR is an sh-compatible* command language interpreter that executes
+commands read from the standard input or from a plain text file.
+
+\fBKbsh\fR is designed to replace those big, slow shells (ie Bash). It aims to
+provide the same functionality* as Bash, but in a much smaller size.
+
+*\fBKbsh\fR is still in early development and is lacking some key features.
+
+.SH OPTIONS
+
+\fBLong options:\fR
+  \fB\-\-help\fR                  Display help text and exit
+  \fB\-\-version\fR               Display version information and exit
+
+\fBShell options:\fR
+  \fB\-c [string]\fR             Read commands from [string]
+  \fB\-i\fR                      Run kbsh as an interactive shell
+  \fB\-s\fR                      Read commands from standard input
+  \fB\-abefhkmnptuvxBCHP\fR      Only used for compatibility
+
+\fBFile:\fR
+  Read commands from a plain-text file and exit
+
+.SH COPYRIGHT
+
+Copyright (C) 2012 Zack Parsons
+.br
+
+\fBKbsh\fP is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+.br
+
+\fBKbsh\fP is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+.SH "BUG REPORTS"
+Report bugs to: <k3bacon@gmail.com>

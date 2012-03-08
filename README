@@ -1,0 +1,17 @@
+This is the README file for kbsh.
+K3BACON SHELL (kbsh) is a lightweight UNIX shell. It controls interaction
+between the user and the operating system via command line.
+
+	Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
+
+	Copying and distribution of this file, with or without modification,
+	are permitted in any medium without royalty provided the copyright
+	notice and this notice are preserved.
+
+See the file ./INSTALL for building and installation instructions.
+
+Source Code: https://github.com/k3bacon/kbsh/
+
+Email: k3bacon@gmail.com
+
+kbsh is free software. See the file ./COPYING for terms and conditions.

@@ -1,0 +1,10 @@
+KBSH TODO
+
+* Add scripting:
+  * Conditionals
+  * Loops
+  * Pipe/redirect file streams
+  * Variables
+
+* Add builtin commands:
+  * echo, read, etc.
