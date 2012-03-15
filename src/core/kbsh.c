@@ -1,6 +1,6 @@
 /*
  * Kbsh core.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -35,8 +35,30 @@
 #include "core/sig.h"
 #include "builtin/builtin.h"
 
-static int kbsh_exec(char **argums);
-static void kbsh_fork(struct Buffer *b);
+static int kbsh_exec(int argc, char **argv)
+{
+	volatile int err = -1;
+	pid_t pid = 0;
+
+	if (!argc)
+		return -EINVAL;
+
+	pid = fork();
+
+	if (!pid) {
+		err = execvp(argv[0], argv);
+		if (err) {
+			fprintf(stderr, "%s: ", program_name);
+			perror(argv[0]);
+		}
+		_exit(err);
+	} else if (pid > 0)
+		wait(NULL);
+	if (pid < 0)
+		kbsh_exit(errno);
+
+	return (int)err;
+}
 
 void kbsh_init(void)
 {
@@ -52,33 +74,13 @@ void kbsh_exit(int exit_status)
 	exit(exit_status);
 }
 
-void kbsh_main(struct Buffer *b)
+int kbsh_main(int argc, char **argv)
 {
-	if (!kbsh_find_builtin(b))
-		kbsh_fork(b);
+	int ret = 0;
+
+	if ((ret = kbsh_run_builtin(argc, argv)) == BUILTIN_NOT_FOUND)
+		ret = kbsh_exec(argc, argv);
 	kbsh_env_update();
-}
 
-static int kbsh_exec(char **argums)
-{
-	int err = 0;
-
-	err = execvp(argums[0], argums);
-	if (err) {
-		fprintf(stderr, "%s: ", program_name);
-		perror(argums[0]);
-	}
-	return err;
-}
-
-static void kbsh_fork(struct Buffer *b)
-{
-	pid_t pid = fork();
-
-	if (!pid)
-		_exit(kbsh_exec(b->word));
-	else if (pid > 0)
-		wait(NULL);
-	if (pid < 0)
-		kbsh_exit(errno);
+	return ret;
 }

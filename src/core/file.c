@@ -1,6 +1,6 @@
 /*
  * Read script file.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -35,7 +35,35 @@ static char **line;
 
 static struct Buffer buffer;
 
-static char *kbsh_fpars_gets_more(void);
+static char *kbsh_fpars_gets_more(void)
+{
+	char **temp;
+	temp = malloc(sizeof(*temp));
+	if (!temp)
+		kbsh_exit(errno);
+	*temp = malloc(sizeof(**temp) * (kfile.line_read_length));
+	if (!*temp)
+		kbsh_exit(errno);
+	char *out = NULL;
+
+	while (1) {
+		if (getline(temp, &kfile.line_read_length, kfile.file) == -1) {
+			kfile.line_number++;
+			if (*temp)
+				free(*temp);
+			if (temp)
+				free(temp);
+			return NULL;
+		}
+		if (**line == '#')
+			continue;
+		else
+			break;
+	}
+	out = *temp;
+	free(temp);
+	return out;
+}
 
 void kbsh_fpars_exit(void)
 {
@@ -88,7 +116,7 @@ void kbsh_fpars_main(void)
 		if (parse_err)
 			kbsh_exit(parse_err);
 
-		kbsh_main(&buffer);
+		kbsh_main((int)buffer.word_used, buffer.word);
 		kbsh_buffer_reset(&buffer);
 
 		*line = NULL;
@@ -96,34 +124,4 @@ void kbsh_fpars_main(void)
 		if (!*line)
 			kbsh_exit(errno);
 	}
-}
-
-static char *kbsh_fpars_gets_more(void)
-{
-	char **temp;
-	temp = malloc(sizeof(*temp));
-	if (!temp)
-		kbsh_exit(errno);
-	*temp = malloc(sizeof(**temp) * (kfile.line_read_length));
-	if (!*temp)
-		kbsh_exit(errno);
-	char *out = NULL;
-
-	while (1) {
-		if (getline(temp, &kfile.line_read_length, kfile.file) == -1) {
-			kfile.line_number++;
-			if (*temp)
-				free(*temp);
-			if (temp)
-				free(temp);
-			return NULL;
-		}
-		if (**line == '#')
-			continue;
-		else
-			break;
-	}
-	out = *temp;
-	free(temp);
-	return out;
 }

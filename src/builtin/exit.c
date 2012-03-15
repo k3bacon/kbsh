@@ -1,6 +1,6 @@
 /*
  * Buitin command: exit
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -23,15 +23,14 @@
 #include <stdlib.h>
 
 #include "core/kbsh.h"
-#include "core/buffer.h"
 #include "builtin/builtin.h"
 
-int kbsh_builtin_exit(struct Buffer *b)
+static int builtin_exit(int argc, char **argv)
 {
 	int status = 0;
-	if (!b || b->word_used < 2)
+	if (!argv || argc < 2)
 		goto end;
-	status = atoi(b->word[1]);
+	status = atoi(argv[1]);
 end:
 	kbsh_exit(status);
 	return 1;
@@ -39,5 +38,5 @@ end:
 
 struct Builtin bi_exit = {
 	"exit",
-	kbsh_builtin_exit
+	builtin_exit
 };

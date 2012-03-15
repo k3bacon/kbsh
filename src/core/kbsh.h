@@ -1,6 +1,6 @@
 /*
  * Kbsh core.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -20,8 +20,6 @@
 
 #ifndef KBSH_H
 #define KBSH_H
-
-#include "core/buffer.h"
 
 char *program_name;
 
@@ -46,6 +44,6 @@ void (*kbsh_clean)(void);
 
 void kbsh_exit(int exit_status);
 void kbsh_init(void);
-void kbsh_main(struct Buffer *b);
+int kbsh_main(int argc, char **argv);
 
 #endif/*KBSH_H*/

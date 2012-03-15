@@ -1,6 +1,6 @@
 /*
  * Read commands from "-c [string]".
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -31,50 +31,7 @@
 static char *string;
 static struct Buffer buffer;
 
-static char *kbsh_cmdstr_gets(void);
-static char *kbsh_cmdstr_gets_more(void);
-
-void kbsh_cmdstr_exit(void)
-{
-	return;
-}
-
-void kbsh_cmdstr_init(char *str)
-{
-	if (str == NULL)
-		kbsh_exit(EINVAL);
-	kbsh_clean = kbsh_cmdstr_exit;
-	kbsh_buffer_gets_more = kbsh_cmdstr_gets_more;
-	kbsh_mode = STRG_M;
-	string = str;
-}
-
-void kbsh_cmdstr_main(void)
-{
-	while (1) {
-		while (1) {
-			if (buffer.full) {
-				free(buffer.full);
-				buffer.full = NULL;
-			}
-			buffer.full = kbsh_cmdstr_gets();
-			if (!buffer.full)
-				kbsh_exit(0);
-			if (buffer.full && *buffer.full) {
-				if (*buffer.full == '#')
-					continue;
-				break;
-			}
-		}
-		kbsh_parse(&buffer);
-		if (parse_err)
-			kbsh_exit(parse_err);
-		kbsh_main(&buffer);
-		kbsh_buffer_reset(&buffer);
-	}
-}
-
-char *kbsh_cmdstr_gets()
+static char *kbsh_cmdstr_gets()
 {
 	char *line = NULL;
 	size_t index = 0;
@@ -115,4 +72,44 @@ static char *kbsh_cmdstr_gets_more(void)
 			break;
 	}
 	return temp;
+}
+
+void kbsh_cmdstr_exit(void)
+{
+	return;
+}
+
+void kbsh_cmdstr_init(char *str)
+{
+	if (str == NULL)
+		kbsh_exit(EINVAL);
+	kbsh_clean = kbsh_cmdstr_exit;
+	kbsh_buffer_gets_more = kbsh_cmdstr_gets_more;
+	kbsh_mode = STRG_M;
+	string = str;
+}
+
+void kbsh_cmdstr_main(void)
+{
+	while (1) {
+		while (1) {
+			if (buffer.full) {
+				free(buffer.full);
+				buffer.full = NULL;
+			}
+			buffer.full = kbsh_cmdstr_gets();
+			if (!buffer.full)
+				kbsh_exit(0);
+			if (buffer.full && *buffer.full) {
+				if (*buffer.full == '#')
+					continue;
+				break;
+			}
+		}
+		kbsh_parse(&buffer);
+		if (parse_err)
+			kbsh_exit(parse_err);
+		kbsh_main((int)buffer.word_used, buffer.word);
+		kbsh_buffer_reset(&buffer);
+	}
 }

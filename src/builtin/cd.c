@@ -1,6 +1,6 @@
 /*
- * Change directory.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Builtin command: cd
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -24,47 +24,43 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
 #include <unistd.h>
 
 #include "core/kbsh.h"
-#include "core/buffer.h"
 #include "core/env.h"
 #include "builtin/builtin.h"
 
-int kbsh_builtin_cd(struct Buffer *b)
+static int builtin_cd(int argc, char **argv)
 {
-	if (!b)
-		kbsh_exit(EINVAL);
-
 	size_t cd_size = 1;
 	size_t up = 1;
-	char *cd  = NULL;
+	char *cd = NULL;
 
-	if (!b->word_used || !b->word[0])
+	if (!argc || !argv || !argv[0])
 		goto end;
-	if (b->word_used < 2) {
+
+	if (argc < 2) {
 		if (chdir(env.home))
 			perror("kbsh: cd");
 		else
 			goto done;
 		goto end;
 	}
-	cd_size += 1 + strlen(b->word[up]);
+	cd_size += 1 + strlen(argv[up]);
 	cd = malloc(sizeof(*cd) * cd_size);
 	if (!cd)
 		kbsh_exit(errno);
-	strcpy(cd, b->word[up]); up++;
-	while (b->word[up]) {
-		cd_size += 1 + strlen(b->word[up]);
+	strcpy(cd, argv[up++]);
+	while (argv[up]) {
+		cd_size += 1 + strlen(argv[up]);
 		cd = realloc(cd, sizeof(*cd) * cd_size);
 		if (!cd)
 			kbsh_exit(errno);
 		strcat(cd, " ");
-		strcat(cd, b->word[up]);
+		strcat(cd, argv[up]);
 		up++;
 	}
-	if (chdir(cd))/*chdir*/
+	if (chdir(cd))
 		perror("kbsh: cd");
 	else {
 done:
@@ -75,10 +71,11 @@ done:
 	}
 end:
 	free(cd);
+
 	return 0;
 }
 
 struct Builtin bi_cd = {
 	"cd",
-	kbsh_builtin_cd
+	builtin_cd
 };

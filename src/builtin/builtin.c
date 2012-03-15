@@ -1,6 +1,6 @@
 /*
  * Find builtin commands.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -24,26 +24,19 @@
 #include <errno.h>
 
 #include "core/kbsh.h"
-#include "core/buffer.h"
 #include "builtin/builtin.h"
 
-int kbsh_find_builtin(struct Buffer *b)
+int kbsh_run_builtin(int argc, char **argv)
 {
-	if (!b)
-		kbsh_exit(EINVAL);
-	/* find builtin commands */
-	if (!b->word || !*b->word)/* empty input */
-		goto found;
-
-	if (!strcmp(b->word[0], bi_cd.command)) {
-		bi_cd.init(b);
-		goto found;
-	} else if (!strcmp(b->word[0], bi_exit.command)) {
-		bi_exit.init(b);
-		goto found;
+	if (!argc || !argv) {
+		return -EINVAL;
 	}
 
-	return 0; /* Continue and find external commands */
-found:
-	return 1; /* Builtin command found; Don't continue */
+	if (!strcmp(argv[0], bi_cd.call_str)) {
+		return bi_cd.init(argc, argv);
+	} else if (!strcmp(argv[0], bi_exit.call_str)) {
+		return bi_exit.init(argc, argv);
+	}
+
+	return BUILTIN_NOT_FOUND;
 }

@@ -1,6 +1,6 @@
 /*
  * Manage user input.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011. 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -37,60 +37,6 @@
 #include "core/prompt.h"
 
 static struct Buffer buffer;
-
-static char *kbsh_gets(char *);
-static char *kbsh_input_gets_more(void);
-static void kbsh_create_histfname(void);
-
-void kbsh_input_exit(void)
-{
-	free(history_fname);
-	kbsh_prompt_exit();
-	kbsh_buffer_reset(&buffer);
-}
-
-void kbsh_input_init(void)
-{
-	kbsh_clean = kbsh_input_exit;
-	kbsh_mode = INTR_M;
-	kbsh_buffer_gets_more = kbsh_input_gets_more;
-	kbsh_prompt_init();
-	kbsh_create_histfname();
-	rl_outstream = stderr;
-	read_history(history_fname);
-	rl_bind_key('\t', rl_complete);
-}
-
-void kbsh_input_main(void)
-{
-	while (1) {
-		parse_err = 0;
-
-		while (1) {
-			/* Input loop */
-			if (buffer.full) {
-				free(buffer.full);
-				buffer.full = NULL;
-			}
-			buffer.full = kbsh_gets(prompt.crnt_ch);
-			if (!buffer.full) {
-				puts("exit");
-				kbsh_exit(0);
-			}
-			if (buffer.full && *buffer.full) {
-				if (*buffer.full == '#')
-					continue;
-				break;
-			}
-		}
-
-		kbsh_parse(&buffer);
-		if (parse_err)
-			continue;
-		kbsh_main(&buffer);
-		kbsh_buffer_reset(&buffer);
-	}
-}
 
 static char *kbsh_gets(char *prompt_in)
 {
@@ -149,4 +95,54 @@ static void kbsh_create_histfname(void)
 	history_fname = kbsh_env_prepend_homedir(name);
 	if (!history_fname)
 		kbsh_exit(errno);
+}
+
+void kbsh_input_exit(void)
+{
+	free(history_fname);
+	kbsh_prompt_exit();
+	kbsh_buffer_reset(&buffer);
+}
+
+void kbsh_input_init(void)
+{
+	kbsh_clean = kbsh_input_exit;
+	kbsh_mode = INTR_M;
+	kbsh_buffer_gets_more = kbsh_input_gets_more;
+	kbsh_prompt_init();
+	kbsh_create_histfname();
+	rl_outstream = stderr;
+	read_history(history_fname);
+	rl_bind_key('\t', rl_complete);
+}
+
+void kbsh_input_main(void)
+{
+	while (1) {
+		parse_err = 0;
+
+		while (1) {
+			/* Input loop */
+			if (buffer.full) {
+				free(buffer.full);
+				buffer.full = NULL;
+			}
+			buffer.full = kbsh_gets(prompt.crnt_ch);
+			if (!buffer.full) {
+				puts("exit");
+				kbsh_exit(0);
+			}
+			if (buffer.full && *buffer.full) {
+				if (*buffer.full == '#')
+					continue;
+				break;
+			}
+		}
+
+		kbsh_parse(&buffer);
+		if (parse_err)
+			continue;
+		kbsh_main((int)buffer.word_used, buffer.word);
+		kbsh_buffer_reset(&buffer);
+	}
 }

@@ -1,6 +1,6 @@
 /*
  * Parse input buffer.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -51,9 +51,67 @@ static int in_quote;
 static int in_squote;
 static int in_dquote;
 
-static const char *kbsh_get_syntax_err_msg(void);
-static void kbsh_parse_tok(void);
-static void kbsh_parse_gets_more(void);
+static const char *kbsh_get_syntax_err_msg(void)
+{
+	switch (syntax_err.type) {
+	case MISSING_SINGLE_QUOTE:
+		return _("missing \'");
+		break;
+	case MISSING_DOUBLE_QUOTE:
+		return _("missing \"");
+		break;
+	case UNEXPECTED_EOF:
+		return _("unexpected EOF");
+	default:
+		return _("unknown error");
+		break;
+	}
+	return NULL;
+}
+
+static void kbsh_parse_gets_more(void)
+{
+	char *temp = NULL;
+	size_t temp_size = 0;
+	temp = kbsh_buffer_gets_more();
+	if (!temp) {
+		syntax_err.checkme = 1;
+		syntax_err.type = UNEXPECTED_EOF;
+		loop = 0;
+		return;
+	}
+	temp_size = strlen(temp);
+	if (temp_size) {
+		temp_size += 1;
+		if (!kbsh_buffer_add_bytes(buffer, temp_size))
+			kbsh_exit(errno);
+		strcat(buffer->full, temp);
+	}
+	free(temp);
+}
+
+static void kbsh_parse_tok(void)
+{
+	size_t ind = 0;
+	char *temp = NULL;
+
+	buffer->word_size = ++argno;
+
+	if (buffer->word)
+		free(buffer->word);
+	buffer->word = malloc(sizeof(*buffer->word) * (buffer->word_size));
+	if (!buffer->word)
+		kbsh_exit(errno);
+
+	temp = strtok(buffer->pars, "\x1d");
+	while (temp != NULL) {
+		buffer->word[ind] = temp;
+		temp = strtok(NULL, "\x1d");
+		ind++;
+	}
+	buffer->word[ind] = NULL;
+	buffer->word_used = ind;
+}
 
 static void parse_newline(void)
 {
@@ -267,65 +325,4 @@ void kbsh_parse(struct Buffer *b)
 		parse_err = syntax_err.type;
 	}
 	kbsh_parse_tok();
-}
-
-static const char *kbsh_get_syntax_err_msg(void)
-{
-	switch (syntax_err.type) {
-	case MISSING_SINGLE_QUOTE:
-		return _("missing \'");
-		break;
-	case MISSING_DOUBLE_QUOTE:
-		return _("missing \"");
-		break;
-	case UNEXPECTED_EOF:
-		return _("unexpected EOF");
-	default:
-		return _("unknown error");
-		break;
-	}
-	return NULL;
-}
-
-static void kbsh_parse_tok(void)
-{
-	size_t ind = 0;
-	char *temp = NULL;
-
-	buffer->word_size = ++argno;
-
-	if (buffer->word)
-		free(buffer->word);
-	buffer->word = malloc(sizeof(*buffer->word) * (buffer->word_size));
-	if (!buffer->word)
-		kbsh_exit(errno);
-
-	temp = strtok(buffer->pars, "\x1d");
-	while (temp != NULL) {
-		buffer->word[ind] = temp;
-		temp = strtok(NULL, "\x1d");
-		ind++;
-	}
-	buffer->word[ind] = NULL;
-	buffer->word_used = ind;
-}
-
-static void kbsh_parse_gets_more(void)
-{
-	char *temp = NULL;
-	size_t temp_size = 0;
-	temp = kbsh_buffer_gets_more();
-	if (!temp) {
-		syntax_err.checkme = 1;
-		syntax_err.type = UNEXPECTED_EOF;
-		loop = 0;
-		return;
-	}
-	temp_size = strlen(temp);
-	if (temp_size) {
-		temp_size += 1;
-		kbsh_buffer_add_n_bytes(buffer, temp_size);
-		strcat(buffer->full, temp);
-	}
-	free(temp);
 }

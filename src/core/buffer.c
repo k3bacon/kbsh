@@ -1,6 +1,6 @@
 /*
  * Manage input buffer.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -26,19 +26,23 @@
 #include "core/kbsh.h"
 #include "core/buffer.h"
 
-void kbsh_buffer_add_n_bytes(struct Buffer *b, size_t n)
+struct Buffer *kbsh_buffer_add_bytes(struct Buffer *b, size_t bytes)
 {
 	if (!b || !b->full || !b->pars)
-		kbsh_exit(EINVAL);
-	b->pars_size += n;
-	b->full_size += n;
+		goto err;
+	b->pars_size += bytes;
+	b->full_size += bytes;
 
 	b->full = realloc(b->full, (sizeof(*b->full) * (b->full_size)));
 	if (!b->full)
-		kbsh_exit(errno);
+		goto err;
 	b->pars = realloc(b->pars, (sizeof(*b->pars) * (b->pars_size)));
 	if (!b->pars)
-		kbsh_exit(errno);
+		goto err;
+
+	return b;
+err:
+	return NULL;
 }
 
 void kbsh_buffer_reset(struct Buffer *b)

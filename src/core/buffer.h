@@ -1,6 +1,6 @@
 /*
  * Input buffer.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Copyright (C) 2011, 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -37,7 +37,7 @@ struct Buffer {
 
 char *(*kbsh_buffer_gets_more)(void);
 
-void kbsh_buffer_add_n_bytes(struct Buffer *b, size_t n);
+struct Buffer *kbsh_buffer_add_bytes(struct Buffer *b, size_t bytes);
 void kbsh_buffer_reset(struct Buffer *b);
 
 #endif/*BUFFER_H*/
