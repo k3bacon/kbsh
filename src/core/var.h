@@ -1,6 +1,6 @@
 /*
- * Manage environmental variables.
- * Copyright (C) 2011 Zack Parsons <k3bacon@gmail.com>
+ * Manage variables.
+ * Copyright (C) 2012 Zack Parsons <k3bacon@gmail.com>
  *
  * This file is part of kbsh.
  *
@@ -18,20 +18,16 @@
  * along with kbsh.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ENV_H
-#define ENV_H
+#ifndef VAR_H
+#define VAR_H
 
-struct Env {
-	char *cwd;
-	char *cwd_end;
-	char *home;
-	char *user;
-} env;
+#include <unistd.h>
 
-void kbsh_env_exit(void);
-void kbsh_env_init(void);
-void kbsh_env_update(void);
+void kbsh_var_init(char **env);
+void kbsh_var_exit(void);
+char *kbsh_var_getval(const char *name);
+int kbsh_var_setval(const char *name, const char *val, int ovrwrite);
+int kbsh_var_setvar(const char *var_str, int ovrwrite);
+int kbsh_var_export(const char *name);
 
-char *kbsh_env_prepend_homedir(const char *dir);
-
-#endif/*ENV_H*/
+#endif/*VAR_H*/

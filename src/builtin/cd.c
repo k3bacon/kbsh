@@ -27,7 +27,7 @@
 #include <unistd.h>
 
 #include "core/kbsh.h"
-#include "core/env.h"
+#include "core/var.h"
 #include "builtin/builtin.h"
 
 static int builtin_cd(int argc, char **argv)
@@ -35,12 +35,13 @@ static int builtin_cd(int argc, char **argv)
 	size_t cd_size = 1;
 	size_t up = 1;
 	char *cd = NULL;
+	char *temp = NULL;
 
 	if (!argc || !argv || !argv[0])
 		goto end;
 
 	if (argc < 2) {
-		if (chdir(env.home))
+		if (chdir(kbsh_var_getval("HOME")))
 			perror("kbsh: cd");
 		else
 			goto done;
@@ -64,10 +65,10 @@ static int builtin_cd(int argc, char **argv)
 		perror("kbsh: cd");
 	else {
 done:
-		free(env.cwd);
-		env.cwd = getcwd(NULL, 0);
-		if (setenv("PWD", env.cwd, 1))
-			perror("kbsh");
+		temp = getcwd(NULL, 0);
+		kbsh_var_setval("PWD", temp, 1);
+		kbsh_var_export("PWD");
+		free(temp);
 	}
 end:
 	free(cd);

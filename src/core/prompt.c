@@ -28,7 +28,6 @@
 #include <unistd.h>
 
 #include "core/kbsh.h"
-#include "core/env.h"
 #include "core/prompt.h"
 
 void kbsh_prompt_exit(void)

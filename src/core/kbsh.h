@@ -43,7 +43,7 @@ int stderr_isatty;
 void (*kbsh_clean)(void);
 
 void kbsh_exit(int exit_status);
-void kbsh_init(void);
+void kbsh_init(char **env);
 int kbsh_main(int argc, char **argv);
 
 #endif/*KBSH_H*/

@@ -33,6 +33,10 @@
 #include "core/file.h"
 #include "core/input.h"
 
+#ifdef NO_MAIN_ENV_ARG
+extern char **environ;
+#endif
+
 static int print_help_flag;
 
 #define SOPTS "c:isabefhkmnptuvxBCHP"
@@ -48,7 +52,11 @@ static const struct option longopts[] = {
 static void print_help(void);
 static void print_version(void);
 
-int main(int argc, char **argv)
+int main(int argc, char **argv
+#ifndef NO_MAIN_ENV_ARG
+	 , char **envp
+#endif/*NO_MAIN_ENV_ARG*/
+)
 {
 	program_name = argv[0];
 	int optc;
@@ -120,7 +128,13 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	kbsh_init();/* initializer for kbsh */
+	kbsh_init(
+#ifdef NO_MAIN_ENV_ARG
+		  environ
+#else
+		  envp
+#endif/*NO_MAIN_ENV_ARG*/
+	);
 
 	if (optind < argc) {
 		/* File mode */

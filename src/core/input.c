@@ -32,9 +32,9 @@
 #include "core/kbsh.h"
 #include "core/buffer.h"
 #include "core/input.h"
-#include "core/env.h"
 #include "core/parse.h"
 #include "core/prompt.h"
+#include "core/var.h"
 
 static struct Buffer buffer;
 
@@ -88,13 +88,22 @@ static char *kbsh_input_gets_more(void)
 
 static void kbsh_create_histfname(void)
 {
-	if (!env.home)
-		return;
 	history_fname = NULL;
+	size_t size = 0;
 	const char *name = "/.kbsh_history";
-	history_fname = kbsh_env_prepend_homedir(name);
+	char *home_dir = kbsh_var_getval("HOME");
+	if (!home_dir)
+		return;
+
+	size = strlen(name); 
+	size += strlen(home_dir) + 1;
+
+	history_fname = malloc((sizeof(char)) * size);
 	if (!history_fname)
 		kbsh_exit(errno);
+
+	strcpy(history_fname, home_dir);
+	strcat(history_fname, name);
 }
 
 void kbsh_input_exit(void)

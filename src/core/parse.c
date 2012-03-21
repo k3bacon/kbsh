@@ -28,9 +28,9 @@
 
 #include "core/kbsh.h"
 #include "core/buffer.h"
-#include "core/env.h"
 #include "core/file.h"
 #include "core/parse.h"
+#include "core/var.h"
 
 static struct Buffer *buffer;
 
@@ -212,20 +212,25 @@ static void parse_tilde(void)
 	if (ignore_next || in_quote || in_arg) {
 		ignore_next = 0;
 		buffer->pars[bpind] = buffer->full[bfind];
-	} else if (env.home) {
-		buffer->pars_size += strlen(env.home);
+	} else {
+		char *home_dir = kbsh_var_getval("HOME");
+		if (!home_dir)
+			goto end;
+
+		buffer->pars_size += strlen(home_dir);
 		buffer->pars = realloc(buffer->pars, sizeof(*buffer->pars)
 				       * (buffer->pars_size));
 		if (!buffer->pars)
 			kbsh_exit(errno);
 		buffer->pars =  buffer->pars;
 
-		while (env.home[hmind] != '\0')
-			buffer->pars[bpind++] = env.home[hmind++];
+		while (home_dir[hmind] != '\0')
+			buffer->pars[bpind++] = home_dir[hmind++];
 
 		bpind--;
 		hmind = 0;
 	}
+end:
 	if (!in_arg) {
 		in_arg = 1;
 		argno++;

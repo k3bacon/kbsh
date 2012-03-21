@@ -31,8 +31,8 @@
 
 #include "core/kbsh.h"
 #include "core/buffer.h"
-#include "core/env.h"
 #include "core/sig.h"
+#include "core/var.h"
 #include "builtin/builtin.h"
 
 static int kbsh_exec(int argc, char **argv)
@@ -60,17 +60,17 @@ static int kbsh_exec(int argc, char **argv)
 	return (int)err;
 }
 
-void kbsh_init(void)
+void kbsh_init(char **env)
 {
 	kbsh_sig_init();
-	kbsh_env_init();
+	kbsh_var_init(env);
 }
 
 void kbsh_exit(int exit_status)
 {
 	if (kbsh_clean)
 		kbsh_clean();
-	kbsh_env_exit();
+	kbsh_var_exit();
 	exit(exit_status);
 }
 
@@ -80,7 +80,6 @@ int kbsh_main(int argc, char **argv)
 
 	if ((ret = kbsh_run_builtin(argc, argv)) == BUILTIN_NOT_FOUND)
 		ret = kbsh_exec(argc, argv);
-	kbsh_env_update();
 
 	return ret;
 }
