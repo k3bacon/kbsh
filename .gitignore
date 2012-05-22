@@ -58,6 +58,7 @@ config.h
 Makefile
 stamp-h1
 *.status
+aclocal.m4
 
 #
 # Don't ignore
